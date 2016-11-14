@@ -1,3 +1,5 @@
+[![npm version](https://badge.fury.io/js/react-redux-uuid.svg)](https://badge.fury.io/js/react-redux-uuid)
+
 ## react-redux-uuid
 
 A place to keep your disposable but application-related component state data
