@@ -21,11 +21,38 @@ const wrapActionCreators = (actionCreators, name, uuid) => {
   });
 };
 
+const selectUUIDState = (state, name, uuid) => _.get(state, ['uuid', name, uuid]);
+
 const connectUUID = (name, mapStateToProps, mapDispatchToProps) => (Component) => {
   const wrapMapStateToProps = (state, { uuid, ...props }) => {
     if (_.isNil(mapStateToProps)) return {};
+
+    const innerState = selectUUIDState(state, name, uuid);
+
+    if (innerState === undefined) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('Can\'t find the state by UUID');
+      } else {
+        throw new Error(`Looks like your uuid reducer setup is wrong. Make sure to have the resulting\
+          reducer of the createUUIDReducer at the \`uuid\` key in your state's top level reducers,
+
+          Example:
+            import { createUUIDReducer } from 'react-redux-uuid';
+
+            const mainAppReducer = combineReducers({
+              uuid: createUUIDReducer({
+                counter: counterReducer,
+                fizzbuzz: fizzbuzzReducer
+              })
+            })
+
+            const store = createStore(mainAppReducer, ...);
+        `);
+      }
+    }
+
     return mapStateToProps(
-      state.uuid[name][uuid],
+      innerState,
       props
     );
   };
