@@ -4,6 +4,7 @@ import { Provider } from 'react-redux'
 import { UUID_KEY, NAME_KEY } from '../src/constants'
 import createReducer from '../src/createReducer'
 import connectUUID from '../src/connect'
+import { globalAction } from '../src/actions'
 import { createStore, combineReducers } from 'redux'
 
 
@@ -53,6 +54,11 @@ describe('connect', () => {
   it('doesn\'t update the component', () => {
     store.dispatch({ type: '@', meta: { [UUID_KEY]: 'wrong', [NAME_KEY]: 'counter' } })
     expect(component.props().count).toBe(2)
+  })
+
+  it('updates the component using global action', () => {
+    store.dispatch(globalAction({ type: '@' }));
+    expect(component.props().count).toBe(3)
   })
 
   it('unmounts the component', () => {

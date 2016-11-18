@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import {
   NAME_KEY,
   UUID_KEY,
@@ -23,9 +24,9 @@ export const unregister = (name, uuid) => ({
   }
 });
 
-export const global = (action) => (() => ({
-  ...action(),
+export const globalAction = (action) => ({
+  ...(_.isFunction(action) ? action(): action),
   meta: {
     [GLOBAL_KEY]: true
   }
-}));
+});
