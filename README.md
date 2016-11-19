@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/eloytoro/react-redux-uuid.svg?branch=master)](https://travis-ci.org/eloytoro/react-redux-uuid)
 [![npm version](https://badge.fury.io/js/react-redux-uuid.svg)](https://badge.fury.io/js/react-redux-uuid)
 
 ## react-redux-uuid
