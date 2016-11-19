@@ -1,6 +1,8 @@
+import _ from 'lodash';
 import {
   NAME_KEY,
   UUID_KEY,
+  GLOBAL_KEY,
   REGISTER,
   UNREGISTER
 } from './constants';
@@ -19,5 +21,12 @@ export const unregister = (name, uuid) => ({
   meta: {
     [UUID_KEY]: uuid,
     [NAME_KEY]: name
+  }
+});
+
+export const globalAction = (action) => ({
+  ...(_.isFunction(action) ? action(): action),
+  meta: {
+    [GLOBAL_KEY]: true
   }
 });
