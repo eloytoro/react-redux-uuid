@@ -101,3 +101,22 @@ object map passed on to `createUUIDReducer` in the main reducer declaration
 #### Returns
 
 A function that injects the inner state and wrapped action creators into your component.
+
+### `wrapActionCreators(actionCreator, name, [uuid])`
+
+Wraps calls to the given action creator, making it so it only applies to reducers within the given
+`name`, if the `uuid` parameter is passed then it will only apply to the only reducer matching the
+uuid (most times you wont need this).
+
+#### Arguments
+
+* `actionCreator` (_Function|Object_): The action creator to be wrapped, if an object of actions is
+passed it will wrap all the actions within instead.
+* `name` (_String_): The name of the reducers that actions will apply to
+* `[uuid]` (_String_): The name of the uuid of the reducer that the action will apply to, you wont
+need to use this parameter this most of the time.
+
+#### Returns
+
+A new action (or object of actions) that will do the same as the action before but it will only
+apply to reducers that match the criteria.

@@ -11,7 +11,7 @@ import { combineReducers } from 'redux';
 const createUUIDReducer = (reducers) => {
   const splitReducer = _.mapValues(reducers, (reducer) => (state = {}, action) => {
     if (!_.has(action, ['meta', UUID_KEY]))
-      return state;
+      return _.mapValues(state, (innerState) => reducer(innerState, action));
     const key = action.meta[UUID_KEY];
 
     switch (action.type) {

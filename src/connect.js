@@ -7,18 +7,40 @@ import { v4 } from 'uuid';
 import { connect } from 'react-redux';
 
 
-const wrapActionCreators = (actionCreators, name, uuid) => {
-  return _.mapValues(actionCreators, (actionCreator) => (...args) => {
+export const wrapActionCreators = (actionCreator, name, uuid) => {
+  if (name === undefined) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Wrapped action creators must have a name parameter');
+    } else {
+      throw new Error(`Looks like youre passing undefined as a name to the wrapActionCreators\
+        function call
+
+        Example:
+          import { wrapActionCreators } from 'react-redux-uuid';
+
+          const generalActions = { add, subtract };
+          // this would apply the add and subtract actions to all reducers within the counter name
+          const mapDispatchToProps = wrapActionCreators(generalActions, 'counter');
+      `);
+    }
+  }
+
+  if (_.isPlainObject(actionCreator)) {
+    return _.mapValues(actionCreator, ac => wrapActionCreators(ac, name, uuid));
+  }
+
+  return (...args) => {
     const action = actionCreator(...args);
     return {
       ...action,
-      meta: {
-        ...action.meta,
-        [UUID_KEY]: uuid,
-        [NAME_KEY]: name
-      }
+      meta: Object.assign(
+        {},
+        action.meta,
+        name && { [NAME_KEY]: name },
+        uuid && { [UUID_KEY]: uuid },
+      )
     };
-  });
+  };
 };
 
 const selectUUIDState = (state, name, uuid) => _.get(state, ['uuid', name, uuid]);
@@ -33,8 +55,9 @@ const connectUUID = (name, mapStateToProps, mapDispatchToProps) => (Component) =
       if (process.env.NODE_ENV === 'production') {
         throw new Error('Can\'t find the state by UUID');
       } else {
-        throw new Error(`Looks like your uuid reducer setup is wrong. Make sure to have the resulting\
-          reducer of the createUUIDReducer at the \`uuid\` key in your state's top level reducers,
+        throw new Error(`Looks like your uuid reducer setup is wrong. Make sure to have the\
+          resulting reducer of the createUUIDReducer at the \`uuid\` key in your state's top level\
+          reducers,
 
           Example:
             import { createUUIDReducer } from 'react-redux-uuid';

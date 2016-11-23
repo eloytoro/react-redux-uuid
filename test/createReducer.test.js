@@ -55,21 +55,41 @@ describe('createReducer', () => {
     })
   })
 
-  it('unhandled actions dont alter inner states', () => {
-    const state = reducer(prevState, {})
-    expect(state.counter).toBe(prevState.counter)
-    expect(state.fizzbuzz).toBe(prevState.fizzbuzz)
+  it('unhandled actions go to inner states', () => {
+    prevState = reducer(prevState, { type: '@' })
+    expect(prevState).toEqual({
+      counter: {
+        'COUNTER-0': 2,
+        'COUNTER-1': 2
+      },
+      fizzbuzz: {
+        'FIZZBUZZ-0': 'fizz'
+      }
+    });
+  })
+
+  it('actions with no UUID alter all states within a given name', () => {
+    prevState = reducer(prevState, { type: '@', meta: { [NAME_KEY]: 'counter' } })
+    expect(prevState).toEqual({
+      counter: {
+        'COUNTER-0': 3,
+        'COUNTER-1': 3
+      },
+      fizzbuzz: {
+        'FIZZBUZZ-0': 'fizz'
+      }
+    });
   })
 
   it('alters the counter', () => {
     prevState = reducer(prevState, { meta: { [UUID_KEY]: 'COUNTER-0', [NAME_KEY]: 'counter' } })
     expect(prevState).toEqual({
       counter: {
-        'COUNTER-0': 2,
-        'COUNTER-1': 1
+        'COUNTER-0': 4,
+        'COUNTER-1': 3
       },
       fizzbuzz: {
-        'FIZZBUZZ-0': 'buzz'
+        'FIZZBUZZ-0': 'fizz'
       }
     })
   })
@@ -78,11 +98,11 @@ describe('createReducer', () => {
     prevState = reducer(prevState, { meta: { [UUID_KEY]: 'FIZZBUZZ-0', [NAME_KEY]: 'fizzbuzz' } })
     expect(prevState).toEqual({
       counter: {
-        'COUNTER-0': 2,
-        'COUNTER-1': 1
+        'COUNTER-0': 4,
+        'COUNTER-1': 3
       },
       fizzbuzz: {
-        'FIZZBUZZ-0': 'fizz'
+        'FIZZBUZZ-0': 'buzz'
       }
     })
   })
@@ -91,10 +111,10 @@ describe('createReducer', () => {
     prevState = reducer(prevState, unregister('counter', 'COUNTER-0'))
     expect(prevState).toEqual({
       counter: {
-        'COUNTER-1': 1
+        'COUNTER-1': 3
       },
       fizzbuzz: {
-        'FIZZBUZZ-0': 'fizz'
+        'FIZZBUZZ-0': 'buzz'
       }
     })
   })
