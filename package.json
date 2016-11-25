@@ -15,12 +15,11 @@
   "author": "eloytoro",
   "license": "MIT",
   "dependencies": {
-    "lodash": "^4.16.6",
-    "multireducer": "^3.0.2",
-    "react": "^15.3.2",
-    "react-redux": "^4.4.5",
-    "redux": "^3.6.0",
-    "uuid": "^2.0.3"
+    "lodash": "^4.0.0",
+    "react": "0.14.0",
+    "react-redux": "^4.0.0",
+    "redux": "^3.0.0",
+    "uuid": "^2.0.0"
   },
   "devDependencies": {
     "babel-core": "^6.18.2",
