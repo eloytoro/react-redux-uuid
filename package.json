@@ -16,10 +16,12 @@
   "license": "MIT",
   "dependencies": {
     "lodash": "^4.0.0",
-    "react": "0.14.0",
     "react-redux": "^4.0.0",
     "redux": "^3.0.0",
     "uuid": "^2.0.0"
+  },
+  "peerDependencies": {
+    "react": "^0.14.0"
   },
   "devDependencies": {
     "babel-core": "^6.18.2",
@@ -29,6 +31,7 @@
     "babel-preset-react": "^6.16.0",
     "babel-preset-stage-3": "^6.17.0",
     "enzyme": "^2.6.0",
+    "react": "^15.4.1",
     "jest": "^17.0.0",
     "react-addons-test-utils": "^15.3.2",
     "react-dom": "^15.3.2",
