@@ -1,6 +1,6 @@
 {
   "name": "react-redux-uuid",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Adds an UUID to components through a HoC",
   "main": "lib/index.js",
   "repository": {
