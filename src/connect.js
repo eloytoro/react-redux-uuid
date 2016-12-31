@@ -2,7 +2,10 @@ import React from 'react';
 import { bindActionCreators } from 'redux';
 import { NAME_KEY, UUID_KEY } from './constants';
 import { register, unregister } from './actions';
-import _ from 'lodash';
+import isNil from 'lodash.isnil';
+import mapValues from 'lodash.mapvalues';
+import get from 'lodash.get';
+import isPlainObject from 'lodash.isplainobject';
 import { v4 } from 'uuid';
 import { connect } from 'react-redux';
 
@@ -25,8 +28,8 @@ export const wrapActionCreators = (actionCreator, name, uuid) => {
     }
   }
 
-  if (_.isPlainObject(actionCreator)) {
-    return _.mapValues(actionCreator, ac => wrapActionCreators(ac, name, uuid));
+  if (isPlainObject(actionCreator)) {
+    return mapValues(actionCreator, ac => wrapActionCreators(ac, name, uuid));
   }
 
   return (...args) => {
@@ -43,11 +46,11 @@ export const wrapActionCreators = (actionCreator, name, uuid) => {
   };
 };
 
-const selectUUIDState = (state, name, uuid) => _.get(state, ['uuid', name, uuid]);
+const selectUUIDState = (state, name, uuid) => get(state, ['uuid', name, uuid]);
 
 const connectUUID = (name, mapStateToProps, mapDispatchToProps) => (Component) => {
   const wrapMapStateToProps = (state, { uuid, ...props }) => {
-    if (_.isNil(mapStateToProps)) return {};
+    if (isNil(mapStateToProps)) return {};
 
     const innerState = selectUUIDState(state, name, uuid);
 
@@ -81,8 +84,8 @@ const connectUUID = (name, mapStateToProps, mapDispatchToProps) => (Component) =
   };
 
   const wrapMapDispatchToProps = (dispatch, { uuid, ...props }) => {
-    if (_.isNil(mapDispatchToProps)) return {};
-    if (_.isPlainObject(mapDispatchToProps)) {
+    if (isNil(mapDispatchToProps)) return {};
+    if (isPlainObject(mapDispatchToProps)) {
       const actions = wrapActionCreators(mapDispatchToProps, name, uuid);
       // memoize wrapped actions by passing a thunk
       return () => bindActionCreators(actions, dispatch);

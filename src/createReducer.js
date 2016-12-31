@@ -4,31 +4,33 @@ import {
   REGISTER,
   UNREGISTER
 } from './constants';
-import _ from 'lodash';
+import omit from 'lodash.omit';
+import mapValues from 'lodash.mapvalues';
+import has from 'lodash.has';
 import { combineReducers } from 'redux';
 
 
 const createUUIDReducer = (reducers) => {
-  const splitReducer = _.mapValues(reducers, (reducer) => (state = {}, action) => {
-    if (!_.has(action, ['meta', UUID_KEY]))
-      return _.mapValues(state, (innerState) => reducer(innerState, action));
+  const splitReducer = mapValues(reducers, (reducer) => (state = {}, action) => {
+    if (!has(action, ['meta', UUID_KEY]))
+      return mapValues(state, (innerState) => reducer(innerState, action));
     const key = action.meta[UUID_KEY];
 
     switch (action.type) {
       case REGISTER: return Object.assign({}, state, {
         [key]: reducer(undefined, action)
       });
-      case UNREGISTER: return _.omit(state, key);
+      case UNREGISTER: return omit(state, key);
     }
 
-    return _.has(state, key)
+    return has(state, key)
       ? { ...state, [key]: reducer(state[key], action) }
       : state;
   });
 
   return (state = {}, action) => {
-    if (!_.has(action, ['meta', NAME_KEY]))
-      return _.mapValues(splitReducer, (reducer, key) => reducer(state[key], action));
+    if (!has(action, ['meta', NAME_KEY]))
+      return mapValues(splitReducer, (reducer, key) => reducer(state[key], action));
 
     const name = action.meta[NAME_KEY];
 
