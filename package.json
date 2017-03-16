@@ -47,14 +47,8 @@
   "babel": {
     "presets": [
       "es2015",
-      "stage-3"
-    ],
-    "env": {
-      "test": {
-        "presets": [
-          "react"
-        ]
-      }
-    }
+      "stage-3",
+      "react"
+    ]
   }
 }
