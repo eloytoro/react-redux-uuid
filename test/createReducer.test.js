@@ -1,5 +1,5 @@
 import { UUID_KEY, NAME_KEY } from '../src/constants';
-import { register, unregister } from '../src/actions'
+import { registerUUID, unregisterUUID } from '../src/actions'
 import createReducer from '../src/createReducer'
 
 describe('createReducer', () => {
@@ -21,7 +21,7 @@ describe('createReducer', () => {
   })
 
   it('registers a new counter', () => {
-    prevState = reducer(prevState, register('counter', 'COUNTER-0'))
+    prevState = reducer(prevState, registerUUID('counter', 'COUNTER-0'))
     expect(prevState).toEqual({
       counter: {
         'COUNTER-0': 1
@@ -31,7 +31,7 @@ describe('createReducer', () => {
   })
 
   it('registers a new fizzbuzz', () => {
-    prevState = reducer(prevState, register('fizzbuzz', 'FIZZBUZZ-0'))
+    prevState = reducer(prevState, registerUUID('fizzbuzz', 'FIZZBUZZ-0'))
     expect(prevState).toEqual({
       counter: {
         'COUNTER-0': 1
@@ -42,8 +42,27 @@ describe('createReducer', () => {
     })
   })
 
-  it('registers a second counter', () => {
-    prevState = reducer(prevState, register('counter', 'COUNTER-1'))
+  it('registers three more counters', () => {
+    prevState = reducer(prevState, registerUUID('counter', {
+      'COUNTER-1': 0,
+      'COUNTER-2': 3,
+      'COUNTER-3': 3
+    }))
+    expect(prevState).toEqual({
+      counter: {
+        'COUNTER-0': 1,
+        'COUNTER-1': 1,
+        'COUNTER-2': 4,
+        'COUNTER-3': 4
+      },
+      fizzbuzz: {
+        'FIZZBUZZ-0': 'buzz'
+      }
+    })
+  })
+
+  it('unregisters two counters', () => {
+    prevState = reducer(prevState, unregisterUUID('counter', ['COUNTER-2', 'COUNTER-3']))
     expect(prevState).toEqual({
       counter: {
         'COUNTER-0': 1,
@@ -108,7 +127,7 @@ describe('createReducer', () => {
   })
 
   it('unregisters the first counter', () => {
-    prevState = reducer(prevState, unregister('counter', 'COUNTER-0'))
+    prevState = reducer(prevState, unregisterUUID('counter', 'COUNTER-0'))
     expect(prevState).toEqual({
       counter: {
         'COUNTER-1': 3

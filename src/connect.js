@@ -1,120 +1,46 @@
 import React from 'react';
-import { bindActionCreators } from 'redux';
-import { NAME_KEY, UUID_KEY } from './constants';
-import { register, unregister } from './actions';
-import isNil from 'lodash.isnil';
-import mapValues from 'lodash.mapvalues';
-import get from 'lodash.get';
-import isPlainObject from 'lodash.isplainobject';
-import { v4 } from 'uuid';
+import { registerUUID, unregisterUUID } from './actions';
+import omit from 'lodash.omit';
+import { createUUID, wrapMapStateToProps, wrapMapDispatchToProps } from './commons';
 import { connect } from 'react-redux';
 
 
-export const wrapActionCreators = (actionCreator, name, uuid) => {
-  if (name === undefined) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('Wrapped action creators must have a name parameter');
-    } else {
-      throw new Error(`Looks like youre passing undefined as a name to the wrapActionCreators\
-        function call
-
-        Example:
-          import { wrapActionCreators } from 'react-redux-uuid';
-
-          const generalActions = { add, subtract };
-          // this would apply the add and subtract actions to all reducers within the counter name
-          const mapDispatchToProps = wrapActionCreators(generalActions, 'counter');
-      `);
-    }
-  }
-
-  if (isPlainObject(actionCreator)) {
-    return mapValues(actionCreator, ac => wrapActionCreators(ac, name, uuid));
-  }
-
-  return (...args) => {
-    const action = actionCreator(...args);
-    return {
-      ...action,
-      meta: Object.assign(
-        {},
-        action.meta,
-        name && { [NAME_KEY]: name },
-        uuid && { [UUID_KEY]: uuid },
-      )
-    };
-  };
-};
-
-const selectUUIDState = (state, name, uuid) => get(state, ['uuid', name, uuid]);
-
 const connectUUID = (name, mapStateToProps, mapDispatchToProps) => (Component) => {
-  const wrapMapStateToProps = (state, { uuid, ...props }) => {
-    if (isNil(mapStateToProps)) return {};
-
-    const innerState = selectUUIDState(state, name, uuid);
-
-    if (innerState === undefined) {
-      if (process.env.NODE_ENV === 'production') {
-        throw new Error('Can\'t find the state by UUID');
-      } else {
-        throw new Error(`Looks like your uuid reducer setup is wrong. Make sure to have the\
-          resulting reducer of the createUUIDReducer at the \`uuid\` key in your state's top level\
-          reducers,
-
-          Example:
-            import { createUUIDReducer } from 'react-redux-uuid';
-
-            const mainAppReducer = combineReducers({
-              uuid: createUUIDReducer({
-                counter: counterReducer,
-                fizzbuzz: fizzbuzzReducer
-              })
-            })
-
-            const store = createStore(mainAppReducer, ...);
-        `);
-      }
-    }
-
-    return mapStateToProps(
-      innerState,
-      props
-    );
-  };
-
-  const wrapMapDispatchToProps = (dispatch, { uuid, ...props }) => {
-    if (isNil(mapDispatchToProps)) return {};
-    if (isPlainObject(mapDispatchToProps)) {
-      const actions = wrapActionCreators(mapDispatchToProps, name, uuid);
-      // memoize wrapped actions by passing a thunk
-      return () => bindActionCreators(actions, dispatch);
-    }
-    return mapDispatchToProps(dispatch, props);
-  };
-
-  const ConnectedComponent = connect(wrapMapStateToProps, wrapMapDispatchToProps)(Component);
+  const ConnectedComponent = connect(
+    wrapMapStateToProps(mapStateToProps, name),
+    wrapMapDispatchToProps(mapDispatchToProps, name)
+  )(Component);
 
   class ConnectUUID extends React.Component {
     componentWillMount() {
-      this.uuid = v4();
-      this.props.register(name, this.uuid);
+      this.uuid = this.props.uuid || createUUID();
+
+      if (!this.props.uuid) {
+        this.props.registerUUID(name, this.uuid);
+      }
+
+      this.unregister = () => {
+        this.props.unregisterUUID(name, this.uuid);
+      }
     }
 
     componentWillUnmount() {
-      this.props.unregister(name, this.uuid);
+      if (!this.props.uuid) {
+        this.unregister();
+      }
     }
 
     render() {
-      return React.createElement(ConnectedComponent, Object.assign(
-        {},
-        this.props,
-        { uuid: this.uuid }
-      ));
+      return (
+        <ConnectedComponent
+          {...omit(this.props, 'registerUUID', 'unregisterUUID')}
+          uuid={this.uuid}
+        />
+      );
     }
   }
 
-  return connect(null, { register, unregister })(ConnectUUID);
+  return connect(null, { registerUUID, unregisterUUID })(ConnectUUID);
 };
 
 export default connectUUID;

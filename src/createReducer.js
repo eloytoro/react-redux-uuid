@@ -17,9 +17,14 @@ const createUUIDReducer = (reducers) => {
     const key = action.meta[UUID_KEY];
 
     switch (action.type) {
-      case REGISTER: return Object.assign({}, state, {
-        [key]: reducer(undefined, action)
-      });
+      case REGISTER: return Object.assign(
+        {},
+        state,
+        mapValues(
+          typeof key === 'string' ? { [key]: undefined } : key,
+          (initialState) => reducer(initialState, action)
+        )
+      );
       case UNREGISTER: return omit(state, key);
     }
 

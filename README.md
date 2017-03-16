@@ -89,7 +89,9 @@ const mainAppReducer = combineReducers({
 ### `connectUUID(name, [mapStateToProps], [mapDispatchToProps])`
 
 Creates a HoC to connect your component to it's corresponding reducer state, its very similar to
-react-redux's `connect`
+react-redux's `connect`. It will inject the `uuid` prop to the component as well.
+
+* `this.props.uuid` (_String_): The component's uuid
 
 #### Arguments
 
@@ -100,7 +102,13 @@ object map passed on to `createUUIDReducer` in the main reducer declaration
 
 #### Returns
 
-A function that injects the inner state and wrapped action creators into your component.
+A higher-order React component that injects the inner state and wrapped action creators into your
+component.
+
+**IMPORTANT NOTE:** if a component connected this way is provided an `uuid` prop then the component
+wont automatically generate its own UUID and it wont unregister the UUID when unmounted, this can be
+_extremely_ useful when dealing with UUID states that are handled manually, see the examples in the
+repo to understand how this works
 
 ### `wrapActionCreators(actionCreator, name, [uuid])`
 
@@ -112,7 +120,7 @@ uuid (most times you wont need this).
 
 * `actionCreator` (_Function|Object_): The action creator to be wrapped, if an object of actions is
 passed it will wrap all the actions within instead.
-* `name` (_String_): The name of the reducers that actions will apply to
+* `name` (_String_): The name of the reducer that actions will apply to
 * `[uuid]` (_String_): The name of the uuid of the reducer that the action will apply to, you wont
 need to use this parameter this most of the time.
 
@@ -120,3 +128,59 @@ need to use this parameter this most of the time.
 
 A new action (or object of actions) that will do the same as the action before but it will only
 apply to reducers that match the criteria.
+
+### `registerUUID(name, uuid)`
+
+An action creator for creating new sub-states into the given collection, useful when you wish to
+index objects using a custom key
+
+#### Arguments
+
+* `name` (_String_): The name of the collection you wish to register a new sub-state in
+* `uuid` (_String|Object<String, Any>_): The UUID that matches the new sub-state, can also be an
+object where the keys are the new UUIDs and the values are the initial states for them
+
+#### Returns
+
+The action that once dispatched to the state would commit the change
+
+### `unregisterUUID(name, uuid)`
+
+An action creator for removing the sub-states into from given collection
+
+#### Arguments
+
+* `name` (_String_): The name of the collection that contains the uuid
+* `uuid` (_String|Array\<String\>_): The UUID that matches the sub-state, can also be an array for
+batch updates
+
+#### Returns
+
+The action that once dispatched to the state would commit the change
+
+### `getUUIDState(state, name, uuid)`
+
+A helper for selecting a specific sub-state
+
+#### Arguments
+
+* `state` (_Object_): The whole redux state
+* `name` (_String_): The name of the collection of sub-states
+* `uuid` (_String_): The uuid you're looking for
+
+#### Returns
+
+The sub-state corresponding the query
+
+### `getRegisteredUUIDs(state, name)`
+
+A helper for selecting an array of all the available keys in a collection
+
+#### Arguments
+
+* `state` (_Object_): The whole redux state
+* `name` (_String_): The name of the collection of sub-states
+
+#### Returns
+
+An array of UUIDs that are currently registered into the collection

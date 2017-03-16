@@ -5,8 +5,7 @@ import {
   UNREGISTER
 } from './constants';
 
-
-export const register = (name, uuid) => ({
+export const registerUUID = (name, uuid) => ({
   type: REGISTER,
   meta: {
     [UUID_KEY]: uuid,
@@ -14,7 +13,7 @@ export const register = (name, uuid) => ({
   }
 });
 
-export const unregister = (name, uuid) => ({
+export const unregisterUUID = (name, uuid) => ({
   type: UNREGISTER,
   meta: {
     [UUID_KEY]: uuid,
