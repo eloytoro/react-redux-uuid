@@ -35,17 +35,26 @@ export const wrapActionCreators = (actionCreator, name, uuid) => {
 
   return (...args) => {
     const action = actionCreator(...args);
-    return {
-      ...action,
-      meta: Object.assign(
-        {},
-        action.meta,
-        name && { [NAME_KEY]: name },
-        uuid && { [UUID_KEY]: uuid },
-      )
-    };
+    if (isPlainObject(action)) {
+        return augmentAction(action, name, uuid);
+    } else {
+      // for redux-thunk
+      const augmentDispatch = dispatch => action => dispatch(augmentAction(action, name, uuid));
+      return (dispatch) => action(augmentDispatch(dispatch));
+    }
   };
 };
+
+const augmentAction = (action, name, uuid) => {
+  return {
+    ...action,
+    meta: Object.assign(
+        {},
+        action.meta,
+        name && {[NAME_KEY]: name},
+        uuid && {[UUID_KEY]: uuid},
+    )
+  }};
 
 export const wrapMapStateToProps = (mapStateToProps, name) => (state, props) => {
   if (isNil(mapStateToProps)) return {};
