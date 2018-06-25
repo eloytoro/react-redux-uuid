@@ -33,16 +33,17 @@ export const wrapActionCreators = (actionCreator, name, uuid) => {
     return mapValues(actionCreator, ac => wrapActionCreators(ac, name, uuid));
   }
 
-  return (...args) => {
-    const action = actionCreator(...args);
-    if (isPlainObject(action)) {
-        return augmentAction(action, name, uuid);
-    } else {
-      // for redux-thunk
-      const augmentDispatch = dispatch => action => dispatch(augmentAction(action, name, uuid));
-      return (dispatch) => action(augmentDispatch(dispatch));
-    }
-  };
+  function wrapAction(action) {
+      if (isPlainObject(action)) {
+          return augmentAction(action, name, uuid);
+      } else {
+          // for redux-thunk
+          const augmentDispatch = dispatch => action => dispatch(wrapAction(action));
+          return (dispatch) => action(augmentDispatch(dispatch));
+      }
+  }
+
+  return (...args) => wrapAction(actionCreator(...args));
 };
 
 const augmentAction = (action, name, uuid) => {
