@@ -5,7 +5,6 @@ import { UUID_KEY, NAME_KEY } from '../src/constants'
 import { registerUUID } from '../src/actions'
 import createReducer from '../src/createReducer'
 import connectUUID from '../src/connect'
-import { wrapMapDispatchToProps} from '../src/commons'
 import { createStore, combineReducers, applyMiddleware } from 'redux'
 import thunkMiddleware from 'redux-thunk'
 
@@ -22,7 +21,7 @@ const Component = () => (
   <div />
 )
 
-const ConnectedComponent = connectUUID('counter', state => ({ count: state }))(Component)
+const createConnectedComponent = (useThunk) => connectUUID('counter', state => ({ count: state }), setupActionCreators(useThunk))(Component)
 
 const setupStore = (useThunk) => {
   const store = useThunk ? createStore(reducer, applyMiddleware(thunkMiddleware)) : createStore(reducer)
@@ -32,25 +31,27 @@ const setupStore = (useThunk) => {
   return store
 }
 
-const setupAction = (store, uuid, useThunk) => {
+const setupActionCreators = (useThunk) => {
   const actionCreators = {}
   if (useThunk) {
       actionCreators.incr = () => (dispatch) => dispatch({type: '@'})
   } else {
       actionCreators.incr = () => {return {type: '@'}}
   }
-  const {incr} = wrapMapDispatchToProps(actionCreators,'counter')(store.dispatch,{uuid})()
-  return incr
+  return actionCreators
 }
 
-const setupRoot = (store, props) => mount(
-  <Provider store={store}>
-    <ConnectedComponent {...props} />
-  </Provider>
-)
+const setupRoot = (store, props, useThunk) => {
+  const ConnectedComponent = createConnectedComponent(useThunk)
+  return mount(
+        <Provider store={store}>
+            <ConnectedComponent {...props} />
+        </Provider>
+    )
+}
 
 describe.each([false,true])('connect thunk:%o', (useThunk) => {
-  const assertBehavior = (store, component, uuid, incr) => {
+  const assertBehavior = (store, component, uuid) => {
     it('connects the component to the uuid state', () => {
       const props = component.props()
       expect(props.count).toBe(1)
@@ -67,7 +68,7 @@ describe.each([false,true])('connect thunk:%o', (useThunk) => {
     })
 
     it('updates the component', () => {
-      incr()
+      component.props().incr()
       expect(component.props().count).toBe(2)
     })
 
@@ -79,14 +80,13 @@ describe.each([false,true])('connect thunk:%o', (useThunk) => {
 
   describe('implicitly', () => {
     const store = setupStore(useThunk)
-    const root = setupRoot(store)
+    const root = setupRoot(store, {}, useThunk)
 
     const component = root.find(Component)
 
     const uuid = component.props().uuid
-    const incr = setupAction(store,uuid,useThunk);
 
-    assertBehavior(store, component, uuid, incr)
+    assertBehavior(store, component, uuid)
 
     it('unmounts the component', () => {
       const calls = store.dispatch.mock.calls.length
@@ -99,13 +99,12 @@ describe.each([false,true])('connect thunk:%o', (useThunk) => {
   describe('explicitly', () => {
     const uuid = 'NON_UUID_KEY'
     const store = setupStore(useThunk)
-    const incr = setupAction(store,uuid,useThunk)
 
     store.dispatch(registerUUID('counter', uuid))
-    const root = setupRoot(store, { uuid })
+    const root = setupRoot(store, { uuid }, useThunk)
     const component = root.find(Component)
 
-    assertBehavior(store, component, uuid, incr)
+    assertBehavior(store, component, uuid)
 
     it('unmounts the component', () => {
       const calls = store.dispatch.mock.calls.length
