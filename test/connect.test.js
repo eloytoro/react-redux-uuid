@@ -68,7 +68,6 @@ describe.each([false,true])('connect thunk:%o', (useThunk) => {
 
     it('updates the component', () => {
       incr()
-      //store.dispatch({ type: '@', meta: { [UUID_KEY]: uuid, [NAME_KEY]: 'counter' } })
       expect(component.props().count).toBe(2)
     })
 
@@ -100,7 +99,8 @@ describe.each([false,true])('connect thunk:%o', (useThunk) => {
   describe('explicitly', () => {
     const uuid = 'NON_UUID_KEY'
     const store = setupStore(useThunk)
-    const incr = setupAction(store,uuid,useThunk);
+    const incr = setupAction(store,uuid,useThunk)
+
     store.dispatch(registerUUID('counter', uuid))
     const root = setupRoot(store, { uuid })
     const component = root.find(Component)
