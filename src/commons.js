@@ -1,12 +1,10 @@
 import { v4 } from 'uuid';
 import mapValues from 'lodash.mapvalues';
-import { bindActionCreators } from 'redux';
+import { bindActionCreators, compose } from 'redux';
 import { NAME_KEY, UUID_KEY } from './constants';
 import isPlainObject from 'lodash.isplainobject';
 import isNil from 'lodash.isnil';
 import get from 'lodash.get';
-import compose from 'lodash.flowright';
-
 
 export const createUUID = () => v4();
 export const getUUIDState = (state, name, ...args) => get(state, ['uuid', name, ...args]);
