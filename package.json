@@ -15,6 +15,7 @@
   "author": "eloytoro",
   "license": "MIT",
   "dependencies": {
+    "lodash.flowright": "^3.5.0",
     "lodash.get": "^4.4.2",
     "lodash.has": "^4.5.2",
     "lodash.isnil": "^4.0.0",

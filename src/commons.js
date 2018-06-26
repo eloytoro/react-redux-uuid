@@ -5,6 +5,7 @@ import { NAME_KEY, UUID_KEY } from './constants';
 import isPlainObject from 'lodash.isplainobject';
 import isNil from 'lodash.isnil';
 import get from 'lodash.get';
+import compose from 'lodash.flowright';
 
 
 export const createUUID = () => v4();
@@ -38,9 +39,12 @@ export const wrapActionCreators = (actionCreator, name, uuid) => {
           return augmentAction(action, name, uuid);
       } else {
           // for redux-thunk
-          const augmentDispatch = dispatch => action => dispatch(wrapAction(action));
           return (dispatch) => action(augmentDispatch(dispatch));
       }
+  }
+
+  function augmentDispatch(dispatch) {
+      return compose(dispatch,wrapAction);
   }
 
   return (...args) => wrapAction(actionCreator(...args));
