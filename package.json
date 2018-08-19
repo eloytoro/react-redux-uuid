@@ -36,11 +36,12 @@
     "babel-preset-react": "^6.16.0",
     "babel-preset-stage-3": "^6.17.0",
     "enzyme": "^2.6.0",
-    "jest": "^17.0.0",
+    "jest": "^23.0.0",
     "react": "^15.4.1",
     "react-addons-test-utils": "^15.3.2",
     "react-dom": "^15.3.2",
     "react-test-renderer": "^15.3.2",
+    "redux-thunk": "^2.3.0",
     "webpack": "1.13.0",
     "webpack-node-externals": "^1.5.4"
   },

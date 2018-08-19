@@ -1,11 +1,10 @@
 import { v4 } from 'uuid';
 import mapValues from 'lodash.mapvalues';
-import { bindActionCreators } from 'redux';
+import { bindActionCreators, compose } from 'redux';
 import { NAME_KEY, UUID_KEY } from './constants';
 import isPlainObject from 'lodash.isplainobject';
 import isNil from 'lodash.isnil';
 import get from 'lodash.get';
-
 
 export const createUUID = () => v4();
 export const getUUIDState = (state, name, ...args) => get(state, ['uuid', name, ...args]);
@@ -33,19 +32,32 @@ export const wrapActionCreators = (actionCreator, name, uuid) => {
     return mapValues(actionCreator, ac => wrapActionCreators(ac, name, uuid));
   }
 
-  return (...args) => {
-    const action = actionCreator(...args);
-    return {
-      ...action,
-      meta: Object.assign(
+  function wrapAction(action) {
+      if (isPlainObject(action)) {
+          return augmentAction(action, name, uuid);
+      } else {
+          // for redux-thunk
+          return (dispatch) => action(augmentDispatch(dispatch));
+      }
+  }
+
+  function augmentDispatch(dispatch) {
+      return compose(dispatch,wrapAction);
+  }
+
+  return (...args) => wrapAction(actionCreator(...args));
+};
+
+const augmentAction = (action, name, uuid) => {
+  return {
+    ...action,
+    meta: Object.assign(
         {},
         action.meta,
-        name && { [NAME_KEY]: name },
-        uuid && { [UUID_KEY]: uuid },
-      )
-    };
-  };
-};
+        name && {[NAME_KEY]: name},
+        uuid && {[UUID_KEY]: uuid},
+    )
+  }};
 
 export const wrapMapStateToProps = (mapStateToProps, name) => (state, props) => {
   if (isNil(mapStateToProps)) return {};
