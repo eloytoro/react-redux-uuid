@@ -3,6 +3,7 @@ import mapValues from 'lodash.mapvalues';
 import { bindActionCreators, compose } from 'redux';
 import { NAME_KEY, UUID_KEY } from './constants';
 import isPlainObject from 'lodash.isplainobject';
+import isObjectLike from 'lodash.isobjectlike';
 import isNil from 'lodash.isnil';
 import get from 'lodash.get';
 
@@ -28,7 +29,7 @@ export const wrapActionCreators = (actionCreator, name, uuid) => {
     }
   }
 
-  if (isPlainObject(actionCreator)) {
+  if (isObjectLike(actionCreator)) {
     return mapValues(actionCreator, ac => wrapActionCreators(ac, name, uuid));
   }
 
@@ -95,7 +96,7 @@ export const wrapMapStateToProps = (mapStateToProps, name) => (state, props) => 
 
 export const wrapMapDispatchToProps = (mapDispatchToProps, name) => (dispatch, { uuid, ...props }) => {
   if (isNil(mapDispatchToProps)) return {};
-  if (isPlainObject(mapDispatchToProps)) {
+  if (isObjectLike(mapDispatchToProps)) {
     const actions = wrapActionCreators(mapDispatchToProps, name, uuid);
     // memoize wrapped actions by passing a thunk
     return () => bindActionCreators(actions, dispatch);
