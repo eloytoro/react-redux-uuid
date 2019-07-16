@@ -7,6 +7,8 @@ import createReducer from '../src/createReducer'
 import connectUUID from '../src/connect'
 import { createStore, combineReducers, applyMiddleware } from 'redux'
 import thunkMiddleware from 'redux-thunk'
+import * as ThunkActionCreators from './ThunkActionCreators'
+import isPlainObject from 'lodash.isplainobject'
 
 const counter = (state = 0) => state + 1
 const fizzbuzz = (state = 'fizz') => state === 'fizz' ? 'buzz' : 'fizz'
@@ -32,13 +34,11 @@ const setupStore = (useThunk) => {
 }
 
 const setupActionCreators = (useThunk) => {
-  const actionCreators = {}
   if (useThunk) {
-      actionCreators.incr = () => (dispatch) => dispatch({type: '@'})
+      return ThunkActionCreators
   } else {
-      actionCreators.incr = () => {return {type: '@'}}
+      return {incr: () => {return {type: '@'}}}
   }
-  return actionCreators
 }
 
 const setupRoot = (store, props, useThunk) => {
