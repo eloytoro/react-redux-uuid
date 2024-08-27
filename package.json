@@ -42,7 +42,7 @@
     "react-dom": "^15.3.2",
     "react-test-renderer": "^15.3.2",
     "redux-thunk": "^2.3.0",
-    "webpack": "1.13.0",
+    "webpack": "5.94.0",
     "webpack-node-externals": "^1.5.4"
   },
   "babel": {
